@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Public URL of the capture PWA. Leave blank to disable the
+         phone-to-PWA redirect (see the script at the end of <body>). -->
+    <meta name="pwa-url" content="" />
+    <title>MuseumOS</title>
+    <!-- Bricolage Grotesque (display), Hanken Grotesk (body),
+         JetBrains Mono (codes/labels). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Space+Grotesk:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+  </head>
+  <body>
+    <script>
+      // Redirect phone-class user agents to the capture PWA. The admin UI
+      // isn't built for narrow screens — operators capturing exhibits should
+      // land on the mobile app instead.
+      //
+      // Deployment-neutral: the PWA URL comes from the <meta name="pwa-url">
+      // tag below, which nginx (or your build) can rewrite per environment.
+      // With no meta tag the redirect is disabled entirely, so localhost dev
+      // and any unconfigured deployment are unaffected.
+      //
+      // Bypass: append `?desktop=1` to opt out for the current page load.
+      // localStorage 'forceDesktop'=1 makes the opt-out sticky.
+      (function () {
+        var meta = document.querySelector('meta[name="pwa-url"]');
+        var PWA_URL = meta && meta.content;
+        if (!PWA_URL || PWA_URL.indexOf('__') === 0) return;
+
+        var qs = new URLSearchParams(location.search);
+        if (qs.has('desktop')) {
+          // Honour the override and remember it so they stay desktop next visit.
+          try { localStorage.setItem('forceDesktop', '1'); } catch (e) {}
+        }
+        if (!localStorage.getItem('forceDesktop')
+            && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          location.replace(PWA_URL);
+        }
+      })();
+    </script>
+    <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'modern')</script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

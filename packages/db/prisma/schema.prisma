@@ -1,0 +1,610 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+  // "native" covers local macOS dev. The two musl targets cover the two
+  // production image architectures (node:22-alpine):
+  //   linux-musl-openssl-3.0.x       — amd64/x86_64 server (the Ubuntu prod box)
+  //   linux-musl-arm64-openssl-3.0.x — arm64 (Raspberry Pi 5)
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users & Auth ────────────────────────────────────────────
+
+enum Role {
+  viewer
+  curator
+  senior_curator
+  admin
+}
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique
+  displayName     String    @map("display_name")
+  passwordHash    String    @map("password_hash")
+  role            Role      @default(viewer)
+  themePreference String?   @map("theme_preference")
+  langPreference  String?   @default("el") @map("lang_preference")
+  totpSecret      String?   @map("totp_secret")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  sessions        Session[]
+  createdExhibits Exhibit[] @relation("CreatedBy")
+  updatedExhibits Exhibit[] @relation("UpdatedBy")
+  uploadedImages  ExhibitImage[] @relation("UploadedBy")
+  uploadedDonorFiles DonorFile[] @relation("DonorFileUploadedBy")
+  notes           ExhibitNote[] @relation("AuthorOfNote")
+  budgetSnapshots BudgetSnapshot[] @relation("BudgetSnapshotCreatedBy")
+  connectedSocialAccounts SocialAccount[] @relation("SocialAccountConnectedBy")
+  createdMarketingPosts   MarketingPost[] @relation("MarketingPostCreatedBy")
+  updatedMarketingPosts   MarketingPost[] @relation("MarketingPostUpdatedBy")
+  auditActions    AuditLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id") @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ─── Categories ──────────────────────────────────────────────
+
+model Category {
+  id       String @id @default(uuid()) @db.Uuid
+  code     String @unique
+  nameEn   String @map("name_en")
+  nameEl   String @map("name_el")
+  idPrefix String @map("id_prefix")
+  schema   Json   @default("{}")
+  sortOrder Int   @default(0) @map("sort_order")
+
+  exhibits Exhibit[]
+
+  @@map("categories")
+}
+
+// ─── Donors ──────────────────────────────────────────────────
+
+model Donor {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
+  // Profile fields imported from the legacy donor registry. Most are
+  // ~50-70% filled — donors who came in person filled them out, donors
+  // we know only by name on an exhibit didn't.
+  fatherName String?   @map("father_name") // Greek patronymic OR institutional contact
+  address    String?
+  city       String?                       // legacy column was "State"; it's a city name
+  phone      String?
+  email      String?
+  taxId      String?   @map("tax_id")     // ADT/AFM — PII, admin-only UI
+  comment    String?
+  firstDonationAt DateTime? @map("first_donation_at") // single date per donor in the legacy export
+
+  // Sequential integer from the previous system. Unique. Kept so a
+  // future re-import or cross-reference with paper records can match.
+  legacyId String? @unique @map("legacy_id")
+
+  // The donor's container UUID in the previous collection-management system,
+  // used to import their scanned donation forms. Null for donors created in-app.
+  legacyContainerUuid String? @map("legacy_container_uuid")
+
+  // Whether this donor appears on the public museum website (the donor wall,
+  // served by GET /donors/public). Defaults true so existing donors stay
+  // visible; uncheck to hide a donor from the public export.
+  isPublic Boolean @default(true) @map("is_public")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  exhibits Exhibit[]
+  files    DonorFile[]
+
+  @@map("donors")
+}
+
+// Files attached to a donor — chiefly scanned donation forms, plus any photos
+// or documents. Mirrors ExhibitImage: originals + thumbnails live under img/
+// (so the Pi mirror picks them up via the same rsync) and are served statically.
+model DonorFile {
+  id               String   @id @default(uuid()) @db.Uuid
+  donorId          String   @map("donor_id") @db.Uuid
+  storageKey       String   @map("storage_key")
+  originalFilename String?  @map("original_filename")
+  mimeType         String?  @map("mime_type")
+  bytes            BigInt?
+  position         Int      @default(0)
+  caption          String?
+  // For files pulled from a previous system: the source content/container
+  // UUID (provenance + re-import guard). Null for files uploaded in-app.
+  legacySource     String?  @map("legacy_source")
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  uploadedById     String?  @map("uploaded_by") @db.Uuid
+  // Bumped on in-place rotation so cached thumbnails miss (same as images).
+  revision         Int      @default(0)
+
+  donor      Donor @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  uploadedBy User? @relation("DonorFileUploadedBy", fields: [uploadedById], references: [id])
+
+  @@index([donorId])
+  @@map("donor_files")
+}
+
+// ─── Locations ───────────────────────────────────────────────
+
+model Location {
+  id     String  @id @default(uuid()) @db.Uuid
+  code   String  @unique
+  nameEn String? @map("name_en")
+  nameEl String? @map("name_el")
+
+  exhibits Exhibit[]
+
+  @@map("locations")
+}
+
+// ─── Exhibits (core table) ───────────────────────────────────
+
+model Exhibit {
+  id               String    @id @default(uuid()) @db.Uuid
+  categoryId       String    @map("category_id") @db.Uuid
+  displayId        String    @map("display_id")
+  legacyId         String?   @map("legacy_id")
+  exhibitName      String    @map("exhibit_name")
+  manufacturer     String?
+  year             Int?
+  donorId          String?   @map("donor_id") @db.Uuid
+  locationId       String?   @map("location_id") @db.Uuid
+  locSite          String?   @map("loc_site")
+  functional       Boolean?
+  functionalComment String?  @map("functional_comment")
+  validated        Boolean   @default(false)
+  collectiblePrice Decimal?  @map("collectible_price") @db.Decimal(10, 2)
+  comment          String?
+  attributes       Json      @default("{}")
+  published        Boolean   @default(false)
+  // When the exhibit was acquired by the museum. Distinct from createdAt
+  // (which is when the row entered MuseumOS). NULL for bulk-imported rows
+  // where the real date is unknown; auto-filled to now() by the API on
+  // newly-created exhibits.
+  acquiredAt       DateTime? @map("acquired_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+  createdById      String?   @map("created_by") @db.Uuid
+  updatedById      String?   @map("updated_by") @db.Uuid
+
+  category  Category  @relation(fields: [categoryId], references: [id])
+  donor     Donor?    @relation(fields: [donorId], references: [id])
+  location  Location? @relation(fields: [locationId], references: [id])
+  createdBy User?     @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy User?     @relation("UpdatedBy", fields: [updatedById], references: [id])
+
+  images     ExhibitImage[]
+  tags       ExhibitTag[]
+  placements ExhibitPlacement[]
+  notes      ExhibitNote[]
+  marketingPosts MarketingPost[]
+
+  // Generated tsvector column maintained by raw SQL (search-indexes.sql).
+  // Declared as Unsupported so Prisma never drops it on `db push`.
+  searchTsv Unsupported("tsvector")? @map("search_tsv")
+
+  @@index([categoryId])
+  @@index([displayId])
+  @@index([legacyId])
+  @@index([deletedAt])
+  @@map("exhibits")
+}
+
+// ─── Tags ────────────────────────────────────────────────────
+
+model Tag {
+  id    String  @id @default(uuid()) @db.Uuid
+  name  String  @unique
+  color String?
+
+  exhibits ExhibitTag[]
+
+  @@map("tags")
+}
+
+model ExhibitTag {
+  exhibitId String @map("exhibit_id") @db.Uuid
+  tagId     String @map("tag_id") @db.Uuid
+
+  exhibit Exhibit @relation(fields: [exhibitId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([exhibitId, tagId])
+  @@map("exhibit_tags")
+}
+
+// ─── Images ──────────────────────────────────────────────────
+
+model ExhibitImage {
+  id               String   @id @default(uuid()) @db.Uuid
+  exhibitId        String   @map("exhibit_id") @db.Uuid
+  storageKey       String   @map("storage_key")
+  originalFilename String?  @map("original_filename")
+  mimeType         String?  @map("mime_type")
+  width            Int?
+  height           Int?
+  bytes            BigInt?
+  isPrimary        Boolean  @default(false) @map("is_primary")
+  position         Int      @default(0)
+  caption          String?
+  uploadedAt       DateTime @default(now()) @map("uploaded_at")
+  uploadedById     String?  @map("uploaded_by") @db.Uuid
+  // Bumped each time the image is rotated in-place. Appended to URLs as
+  // `&r=<revision>` so the browser cache misses and re-fetches the new file.
+  revision         Int      @default(0)
+
+  exhibit    Exhibit @relation(fields: [exhibitId], references: [id], onDelete: Cascade)
+  uploadedBy User?   @relation("UploadedBy", fields: [uploadedById], references: [id])
+
+  @@index([exhibitId])
+  @@map("exhibit_images")
+}
+
+// Conservation log entries — timestamped events per exhibit (cleaned,
+// repaired, inspected, etc.). Separate from `functional_comment` (which
+// captures current state) and `acquired_at` (one-shot metadata).
+//
+// `type` is a free string validated against an enum in code so we can
+// add/rename types without a migration.
+model ExhibitNote {
+  id          String   @id @default(uuid()) @db.Uuid
+  exhibitId   String   @map("exhibit_id") @db.Uuid
+  occurredAt  DateTime @map("occurred_at")
+  type        String
+  text        String
+  authorId    String?  @map("author_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  exhibit Exhibit @relation(fields: [exhibitId], references: [id], onDelete: Cascade)
+  author  User?   @relation("AuthorOfNote", fields: [authorId], references: [id])
+
+  @@index([exhibitId, occurredAt(sort: Desc)])
+  @@map("exhibit_notes")
+}
+
+// ─── Audit Log ───────────────────────────────────────────────
+
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id") @db.Uuid
+  action     String
+  actorId    String?  @map("actor_id") @db.Uuid
+  diff       Json?
+  ip         String?
+  userAgent  String?  @map("user_agent")
+  at         DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([at(sort: Desc)])
+  @@map("audit_log")
+}
+
+// ─── Floor Plan (Phase 3 hooks — tables only) ────────────────
+
+model FloorPlan {
+  id              String @id @default(uuid()) @db.Uuid
+  name            String
+  svgStorageKey   String @map("svg_storage_key")
+  calibrationJson Json?  @map("calibration_json")
+
+  placements ExhibitPlacement[]
+
+  @@map("floor_plans")
+}
+
+model ExhibitPlacement {
+  id          String  @id @default(uuid()) @db.Uuid
+  exhibitId   String  @map("exhibit_id") @db.Uuid
+  floorPlanId String  @map("floor_plan_id") @db.Uuid
+  x           Float
+  y           Float
+  rotation    Float   @default(0)
+  scale       Float   @default(1)
+
+  exhibit   Exhibit   @relation(fields: [exhibitId], references: [id], onDelete: Cascade)
+  floorPlan FloorPlan @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([exhibitId, floorPlanId])
+  @@map("exhibit_placements")
+}
+
+// ─── App settings (key/value) ───────────────────────────────
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+// Editable role → permission matrix. Seeded with built-in defaults on first
+// boot (see apps/api/src/auth/permissions.ts); admins can then flip rows via
+// the Users → Roles & Permissions UI.
+//
+// `allowed=true` means the role has that permission; we keep explicit rows
+// (rather than presence-implies-allowed) so the UI can render an
+// unambiguous matrix without separately knowing the full permission list.
+model RolePermission {
+  role       Role
+  permission String
+  allowed    Boolean  @default(true)
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@id([role, permission])
+  @@map("role_permissions")
+}
+
+// ─── Financials (business plan) ──────────────────────────────
+
+// Budget line items powering the /financials page. Each line is either an
+// income source or an expense, with an optional Actuals number tracked
+// alongside the Forecast so operators can compare plan vs. reality.
+//
+// `kind` is a string (not a Postgres enum) so adding new high-level kinds
+// later (e.g. 'asset' / 'liability' for a fuller financial picture) needs
+// no migration.
+model BudgetItem {
+  id             String   @id @default(uuid()) @db.Uuid
+  kind           String                       // 'income' | 'expense' — validated in app code
+  category       String                       // grouping label, free-string
+  name           String
+  // Decimal(12,2) handles values up to 9,999,999,999.99 — plenty of headroom.
+  forecastAmount Decimal  @default(0) @db.Decimal(12, 2) @map("forecast_amount")
+  actualAmount   Decimal? @db.Decimal(12, 2) @map("actual_amount")
+  // Optional slider bounds. NULL → UI uses a 0..2*forecast heuristic.
+  minAmount      Decimal? @db.Decimal(12, 2) @map("min_amount")
+  maxAmount      Decimal? @db.Decimal(12, 2) @map("max_amount")
+  confidence     String?                      // 'confirmed' | 'likely' | 'aspirational'
+  notes          String?
+  position       Int      @default(0)         // for stable manual ordering inside a kind
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([kind, position])
+  @@map("budget_items")
+}
+
+// Saved snapshots of the entire budget at a point in time. Each snapshot
+// freezes the full list of BudgetItem rows as a JSON blob; loading a
+// snapshot wipes the current budget and recreates it from the data. This
+// is intentionally simpler than a "parallel scenarios" schema — operators
+// edit ONE live budget, occasionally freezing it as a Forecast 1 / 2 /…
+// they can compare against later.
+model BudgetSnapshot {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  // Array of BudgetItem-shaped objects. Stored as JSONB so we can query
+  // it loosely later (e.g. snapshot total computed without restoring).
+  data        Json
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdById String?  @map("created_by") @db.Uuid
+  createdBy   User?    @relation("BudgetSnapshotCreatedBy", fields: [createdById], references: [id])
+
+  @@index([createdAt(sort: Desc)])
+  @@map("budget_snapshots")
+}
+
+// ─── Marketing ───────────────────────────────────────────────
+//
+// Outline:
+//  - SocialAccount         one row per connected platform handle
+//  - MarketingPost         a draft / scheduled / published post
+//  - MarketingPostTarget   which platforms this post fans out to
+//  - SocialMetric          time-series for analytics
+//
+// Strings (not Prisma enums) for the discriminator fields — matches
+// the convention used by BudgetItem.kind and friends, so adding new
+// platforms or statuses doesn't require a contract bump.
+
+// One row per connected social handle for the museum (e.g. the
+// institution's Instagram account, its Facebook Page, etc.). Tokens are
+// stored here for now as plain text; **before production** they must
+// be encrypted via pgcrypto or app-level AES-GCM with a key derived
+// from a secret in the env. Marked clearly with a comment so it
+// doesn't slip past review.
+model SocialAccount {
+  id              String    @id @default(uuid()) @db.Uuid
+  // facebook | instagram | youtube | x | linkedin
+  platform        String
+  // Platform-side ID of the account/page, used in API calls
+  // (e.g. the Facebook Page ID, the Instagram Business Account ID).
+  externalId      String    @map("external_id")
+  handle          String?
+  displayName     String?   @map("display_name")
+  // connected | expired | revoked | disabled
+  status          String    @default("connected")
+  // WARNING: tokens stored in cleartext during the wireframe phase —
+  // wire pgcrypto / column-level encryption before production OAuth.
+  accessToken     String?   @map("access_token")
+  refreshToken    String?   @map("refresh_token")
+  tokenExpiresAt  DateTime? @map("token_expires_at")
+  scopes          String?
+  connectedById   String?   @map("connected_by") @db.Uuid
+  connectedBy     User?     @relation("SocialAccountConnectedBy", fields: [connectedById], references: [id])
+  connectedAt     DateTime  @default(now()) @map("connected_at")
+  lastSyncedAt    DateTime? @map("last_synced_at")
+  lastError       String?   @map("last_error")
+
+  targets         MarketingPostTarget[]
+  metrics         SocialMetric[]
+
+  @@unique([platform, externalId])
+  @@index([platform])
+  @@map("social_accounts")
+}
+
+// A piece of content the museum wants to publish. Lives independent of
+// the platforms it fans out to — one MarketingPost can target several
+// platforms via MarketingPostTarget rows. The relationship to Exhibit
+// is optional so non-catalogue posts (events, generic announcements)
+// also have a home here.
+model MarketingPost {
+  id              String    @id @default(uuid()) @db.Uuid
+  // draft | scheduled | publishing | published | failed | cancelled
+  status          String    @default("draft")
+  // exhibit | event | announcement | custom — drives which composer
+  // template is used when re-opening for edit.
+  kind            String    @default("exhibit")
+  exhibitId       String?   @map("exhibit_id") @db.Uuid
+  exhibit         Exhibit?  @relation(fields: [exhibitId], references: [id])
+  captionEl       String?   @map("caption_el")
+  captionEn       String?   @map("caption_en")
+  // Array of "#tag" strings. JSONB so we can search loosely later
+  // (e.g. "all posts using #ZXSpectrum").
+  hashtags        Json?
+  // Storage key matching exhibit_images.storage_key conventions; lets
+  // the same image pipeline serve both library- and marketing-side
+  // photos without copy-on-write.
+  imageStorageKey String?   @map("image_storage_key")
+  // For carousels — additional storage keys in display order. JSONB
+  // array; null/empty for single-image posts.
+  extraImageKeys  Json?     @map("extra_image_keys")
+  linkUrl         String?   @map("link_url")
+  scheduledAt     DateTime? @map("scheduled_at")
+  publishedAt     DateTime? @map("published_at")
+
+  createdById     String?   @map("created_by") @db.Uuid
+  createdBy       User?     @relation("MarketingPostCreatedBy", fields: [createdById], references: [id])
+  updatedById     String?   @map("updated_by") @db.Uuid
+  updatedBy       User?     @relation("MarketingPostUpdatedBy", fields: [updatedById], references: [id])
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  targets         MarketingPostTarget[]
+
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([exhibitId])
+  @@index([deletedAt])
+  @@map("marketing_posts")
+}
+
+// A single (post × account) fan-out. Tracks per-platform publish
+// state, the external post ID returned after a successful publish
+// (used to fetch metrics and to deep-link the user), and the last
+// error message if anything went wrong.
+model MarketingPostTarget {
+  id               String   @id @default(uuid()) @db.Uuid
+  postId           String   @map("post_id") @db.Uuid
+  post             MarketingPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  accountId        String   @map("account_id") @db.Uuid
+  account          SocialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  // pending | publishing | published | failed | skipped
+  status           String   @default("pending")
+  externalPostId   String?  @map("external_post_id")
+  externalUrl      String?  @map("external_url")
+  errorMessage     String?  @map("error_message")
+  attempts         Int      @default(0)
+  publishedAt      DateTime? @map("published_at")
+
+  metrics          SocialMetric[]
+
+  @@unique([postId, accountId])
+  @@index([accountId])
+  @@index([status])
+  @@map("marketing_post_targets")
+}
+
+// Time-series store for analytics. A row is one (metric × observation
+// time) for either an account (followers, page views) or a specific
+// target (post reach, engagements). One of accountId / targetId is
+// always set — enforced by a DB-side CHECK constraint declared in the
+// migration since Prisma can't model XOR-NOT-NULL directly.
+model SocialMetric {
+  id          String   @id @default(uuid()) @db.Uuid
+  accountId   String?  @map("account_id") @db.Uuid
+  account     SocialAccount? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  targetId    String?  @map("target_id") @db.Uuid
+  target      MarketingPostTarget? @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  // followers | reach | impressions | engagements | likes | comments
+  // | shares | saves | watch_time_seconds — free-form so we can
+  // expand without contract bumps.
+  metricKey   String   @map("metric_key")
+  // Numeric to accommodate fractional metrics (engagement rate %)
+  // alongside integer counts. We round-trip via Number() in the API.
+  value       Decimal  @db.Decimal(18, 4)
+  observedAt  DateTime @map("observed_at")
+
+  @@index([accountId, metricKey, observedAt(sort: Desc)])
+  @@index([targetId, metricKey, observedAt(sort: Desc)])
+  @@map("social_metrics")
+}
+
+// --- Timeline / history-of-computing infographic -------------------------
+// A curator-editable cache of computer models per company, seeded from
+// Wikidata. The timeline view plots these on a swimlane (X = year,
+// Y = company); models matched to our exhibits are "owned" and clickable.
+model TimelineCompany {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @unique
+  // Brands span several legal entities (Commodore International, Commodore
+  // Business Machines, …), so we match exhibits/models against a SET of QIDs.
+  wikidataQids String[] @map("wikidata_qids")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  models TimelineModel[]
+
+  @@map("timeline_companies")
+}
+
+model TimelineModel {
+  id          String   @id @default(uuid()) @db.Uuid
+  companyId   String   @map("company_id") @db.Uuid
+  company     TimelineCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  // Wikidata QID for ingested rows; null for EPOCALC/curator-added models.
+  wikidataQid String?  @map("wikidata_qid")
+  // Stable per-source natural key (e.g. EPOCALC canonical name) for idempotent
+  // re-import + dedup. Null for legacy/manual rows.
+  sourceKey   String?  @map("source_key")
+  name        String
+  year        Int?
+  imageUrl    String?  @map("image_url")
+  // EPOCALC category (Home Computer, Micro, …) and country of origin.
+  type        String?
+  country     String?
+  description String?
+  // Open-ended curator-owned specs (CPU, RAM, OS, price, …), like exhibits.
+  attributes  Json?
+  // 'epocalc' | 'wikidata' | 'manual' — manual rows + hidden survive re-import.
+  source      String   @default("wikidata")
+  hidden      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([companyId, wikidataQid])
+  @@unique([companyId, sourceKey])
+  @@index([companyId])
+  @@map("timeline_models")
+}

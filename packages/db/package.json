@@ -1,0 +1,27 @@
+{
+  "name": "@museumos/db",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "seed": "tsx prisma/seed.ts",
+    "studio": "prisma studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.0",
+    "argon2": "^0.44.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "prisma": "^6.8.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}

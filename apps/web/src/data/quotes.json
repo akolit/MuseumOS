@@ -1,0 +1,907 @@
+[
+  {
+    "id": 1,
+    "quote": "The best way to predict the future is to invent it.",
+    "author": "Alan Kay",
+    "category": "retro computing / future",
+    "source_status": "verified",
+    "source_note": "Alan Kay Wikiquote"
+  },
+  {
+    "id": 2,
+    "quote": "People who are really serious about software should make their own hardware.",
+    "author": "Alan Kay",
+    "category": "hardware / software",
+    "source_status": "verified",
+    "source_note": "Alan Kay Wikiquote"
+  },
+  {
+    "id": 3,
+    "quote": "Technology is anything that wasn't around when you were born.",
+    "author": "Alan Kay",
+    "category": "technology",
+    "source_status": "verified",
+    "source_note": "Alan Kay Wikiquote"
+  },
+  {
+    "id": 4,
+    "quote": "A change in perspective is worth 80 IQ points.",
+    "author": "Alan Kay",
+    "category": "thinking",
+    "source_status": "verified",
+    "source_note": "Alan Kay Wikiquote"
+  },
+  {
+    "id": 5,
+    "quote": "Simple things should be simple, complex things should be possible.",
+    "author": "Alan Kay",
+    "category": "software design",
+    "source_status": "commonly attributed",
+    "source_note": "Alan Kay / common attribution"
+  },
+  {
+    "id": 6,
+    "quote": "The computer revolution hasn't happened yet.",
+    "author": "Alan Kay",
+    "category": "computing future",
+    "source_status": "commonly attributed",
+    "source_note": "Alan Kay"
+  },
+  {
+    "id": 7,
+    "quote": "The future is not laid out on a track.",
+    "author": "Alan Kay",
+    "category": "future",
+    "source_status": "verified",
+    "source_note": "Alan Kay Wikiquote"
+  },
+  {
+    "id": 8,
+    "quote": "Testing shows the presence, not the absence of bugs.",
+    "author": "Edsger W. Dijkstra",
+    "category": "software / debugging",
+    "source_status": "verified",
+    "source_note": "Edsger W. Dijkstra Wikiquote"
+  },
+  {
+    "id": 9,
+    "quote": "Computer science is no more about computers than astronomy is about telescopes.",
+    "author": "Edsger W. Dijkstra",
+    "category": "computer science",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote / common attribution"
+  },
+  {
+    "id": 10,
+    "quote": "Simplicity is a prerequisite for reliability.",
+    "author": "Edsger W. Dijkstra",
+    "category": "software design",
+    "source_status": "commonly attributed",
+    "source_note": "Dijkstra / common attribution"
+  },
+  {
+    "id": 11,
+    "quote": "If debugging is the process of removing software bugs, then programming must be the process of putting them in.",
+    "author": "Edsger W. Dijkstra",
+    "category": "programming",
+    "source_status": "commonly attributed",
+    "source_note": "Dijkstra / common attribution"
+  },
+  {
+    "id": 12,
+    "quote": "The question of whether machines can think is about as relevant as the question of whether submarines can swim.",
+    "author": "Edsger W. Dijkstra",
+    "category": "AI / machines",
+    "source_status": "commonly attributed",
+    "source_note": "Dijkstra / common attribution"
+  },
+  {
+    "id": 13,
+    "quote": "Premature optimization is the root of all evil.",
+    "author": "Donald Knuth",
+    "category": "programming",
+    "source_status": "verified/common",
+    "source_note": "Donald Knuth"
+  },
+  {
+    "id": 14,
+    "quote": "Programs are meant to be read by humans and only incidentally for computers to execute.",
+    "author": "Harold Abelson and Gerald Jay Sussman",
+    "category": "programming",
+    "source_status": "verified/common",
+    "source_note": "SICP"
+  },
+  {
+    "id": 15,
+    "quote": "Any sufficiently advanced technology is indistinguishable from magic.",
+    "author": "Arthur C. Clarke",
+    "category": "technology",
+    "source_status": "verified/common",
+    "source_note": "Clarke's Third Law"
+  },
+  {
+    "id": 16,
+    "quote": "Never trust a computer you can't throw out a window.",
+    "author": "Steve Wozniak",
+    "category": "personal computing",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote / common attribution"
+  },
+  {
+    "id": 17,
+    "quote": "The good news about computers is that they do what you tell them to do. The bad news is that they do what you tell them to do.",
+    "author": "Ted Nelson",
+    "category": "computers",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote"
+  },
+  {
+    "id": 18,
+    "quote": "Computers are like Old Testament gods; lots of rules and no mercy.",
+    "author": "Joseph Campbell",
+    "category": "computers / humor",
+    "source_status": "commonly attributed",
+    "source_note": "Goodreads / BrainyQuote"
+  },
+  {
+    "id": 19,
+    "quote": "I do not fear computers. I fear the lack of them.",
+    "author": "Isaac Asimov",
+    "category": "computers",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote"
+  },
+  {
+    "id": 20,
+    "quote": "Man is still the most extraordinary computer of all.",
+    "author": "John F. Kennedy",
+    "category": "computers / human",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote"
+  },
+  {
+    "id": 21,
+    "quote": "Computers are useless. They can only give you answers.",
+    "author": "Pablo Picasso",
+    "category": "computers / creativity",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote"
+  },
+  {
+    "id": 22,
+    "quote": "The digital revolution is far more significant than the invention of writing or even of printing.",
+    "author": "Douglas Engelbart",
+    "category": "digital revolution",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote"
+  },
+  {
+    "id": 23,
+    "quote": "Software is eating the world.",
+    "author": "Marc Andreessen",
+    "category": "software",
+    "source_status": "verified/common",
+    "source_note": "Wall Street Journal essay / common quote"
+  },
+  {
+    "id": 24,
+    "quote": "We're entering a new world in which data may be more important than software.",
+    "author": "Tim O'Reilly",
+    "category": "data",
+    "source_status": "commonly attributed",
+    "source_note": "BrainyQuote"
+  },
+  {
+    "id": 25,
+    "quote": "There is no reason for any individual to have a computer in his home.",
+    "author": "Ken Olsen",
+    "category": "personal computers",
+    "source_status": "historical attributed",
+    "source_note": "Computing History / BrainyQuote"
+  },
+  {
+    "id": 26,
+    "quote": "I think there is a world market for maybe five computers.",
+    "author": "Thomas J. Watson",
+    "category": "computer history",
+    "source_status": "historical attributed",
+    "source_note": "Computing History"
+  },
+  {
+    "id": 27,
+    "quote": "Computers in the future may weigh no more than 1.5 tons.",
+    "author": "Popular Mechanics",
+    "category": "computer history",
+    "source_status": "historical attributed",
+    "source_note": "Historical quotations"
+  },
+  {
+    "id": 28,
+    "quote": "The real problem is not whether machines think but whether men do.",
+    "author": "B. F. Skinner",
+    "category": "technology / thinking",
+    "source_status": "commonly attributed",
+    "source_note": "common attribution"
+  },
+  {
+    "id": 29,
+    "quote": "The most dangerous phrase in the language is: we've always done it this way.",
+    "author": "Grace Hopper",
+    "category": "innovation",
+    "source_status": "commonly attributed",
+    "source_note": "Grace Hopper / common attribution"
+  },
+  {
+    "id": 30,
+    "quote": "A ship in port is safe, but that is not what ships are built for.",
+    "author": "Grace Hopper",
+    "category": "innovation",
+    "source_status": "commonly attributed",
+    "source_note": "Grace Hopper / common attribution"
+  },
+  {
+    "id": 31,
+    "quote": "One accurate measurement is worth a thousand expert opinions.",
+    "author": "Grace Hopper",
+    "category": "engineering",
+    "source_status": "commonly attributed",
+    "source_note": "Grace Hopper / common attribution"
+  },
+  {
+    "id": 32,
+    "quote": "Humans are allergic to change.",
+    "author": "Grace Hopper",
+    "category": "change",
+    "source_status": "commonly attributed",
+    "source_note": "Grace Hopper / common attribution"
+  },
+  {
+    "id": 33,
+    "quote": "To err is human, but to really foul things up you need a computer.",
+    "author": "Paul R. Ehrlich",
+    "category": "computers / humor",
+    "source_status": "commonly attributed",
+    "source_note": "common attribution"
+  },
+  {
+    "id": 34,
+    "quote": "The Internet is the first thing that humanity has built that humanity doesn't understand.",
+    "author": "Eric Schmidt",
+    "category": "internet",
+    "source_status": "commonly attributed",
+    "source_note": "common attribution"
+  },
+  {
+    "id": 35,
+    "quote": "We are stuck with technology when what we really want is just stuff that works.",
+    "author": "Douglas Adams",
+    "category": "technology / usability",
+    "source_status": "commonly attributed",
+    "source_note": "common attribution"
+  },
+  {
+    "id": 36,
+    "quote": "The machine does not isolate man from the great problems of nature but plunges him more deeply into them.",
+    "author": "Antoine de Saint-Exupéry",
+    "category": "machines",
+    "source_status": "commonly attributed",
+    "source_note": "common attribution"
+  },
+  {
+    "id": 37,
+    "quote": "What a computer is to me is the most remarkable tool that we have ever come up with.",
+    "author": "Steve Jobs",
+    "category": "personal computing",
+    "source_status": "commonly attributed",
+    "source_note": "Steve Jobs / common attribution"
+  },
+  {
+    "id": 38,
+    "quote": "Design is not just what it looks like and feels like. Design is how it works.",
+    "author": "Steve Jobs",
+    "category": "design",
+    "source_status": "commonly attributed",
+    "source_note": "Steve Jobs / common attribution"
+  },
+  {
+    "id": 39,
+    "quote": "The computer is the bicycle of the mind.",
+    "author": "Steve Jobs",
+    "category": "computers / creativity",
+    "source_status": "commonly attributed",
+    "source_note": "Steve Jobs / common attribution"
+  },
+  {
+    "id": 40,
+    "quote": "Machines take me by surprise with great frequency.",
+    "author": "Alan Turing",
+    "category": "AI / machines",
+    "source_status": "commonly attributed",
+    "source_note": "common attribution"
+  },
+  {
+    "id": 41,
+    "quote": "The machine is obsolete. The memory is not.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 42,
+    "quote": "Dusty keyboards. Immortal dreams.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 43,
+    "quote": "Every blinking cursor once felt like the future.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 44,
+    "quote": "The future arrived wrapped in beige plastic.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 45,
+    "quote": "Yesterday's future still hums in CRT static.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 46,
+    "quote": "Boot sequence initiated: 1987.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 47,
+    "quote": "Some memories live on magnetic tape.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 48,
+    "quote": "Where dead technology still whispers.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 49,
+    "quote": "Retro technology is archaeology from the future.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 50,
+    "quote": "Old computers do not boot; they awaken.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 51,
+    "quote": "Before the cloud, there were shoeboxes full of floppies.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 52,
+    "quote": "A floppy disk is a tiny square of stubborn optimism.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 53,
+    "quote": "CRT glow is warmer than nostalgia.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 54,
+    "quote": "The cursor blinked, and the room waited.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 55,
+    "quote": "Every old computer contains the optimism of its era.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 56,
+    "quote": "Modern devices disappear. Old machines had presence.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 57,
+    "quote": "Plastic yellows. Memories do not.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 58,
+    "quote": "Some museums preserve statues. We preserve boot sounds.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 59,
+    "quote": "The past had ports you could actually see.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 60,
+    "quote": "Nothing says future like a beige box with a turbo button.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 61,
+    "quote": "Every cable has a story and at least one missing adapter.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 62,
+    "quote": "Retro computing begins where convenience ends.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 63,
+    "quote": "The slower the machine, the louder the imagination.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 64,
+    "quote": "The loading screen was part of the ritual.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 65,
+    "quote": "Waiting was once a feature.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 66,
+    "quote": "Old technology teaches patience by design.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 67,
+    "quote": "There was poetry in the noise of a disk drive.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 68,
+    "quote": "A hard disk spinning up is a mechanical sunrise.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 69,
+    "quote": "The sound of a modem was the sound of possibility.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 70,
+    "quote": "Every baud carried a little rebellion.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 71,
+    "quote": "The first network was curiosity.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 72,
+    "quote": "Before everything synced, everything mattered.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 73,
+    "quote": "Save early, save often, pray always.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 74,
+    "quote": "An old keyboard remembers every command it survived.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 75,
+    "quote": "Rubber keys, metal dreams.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 76,
+    "quote": "Pixels fade. Nostalgia renders forever.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 77,
+    "quote": "Low resolution, high emotion.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 78,
+    "quote": "We did not have infinite colors, so we used imagination.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 79,
+    "quote": "The best graphics card was the mind.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 80,
+    "quote": "A manual was once a map, not a PDF.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 81,
+    "quote": "Opening a retro computer is opening a time capsule.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 82,
+    "quote": "Every ROM has a ghost.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 83,
+    "quote": "Every cartridge is a fossil with contacts.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 84,
+    "quote": "Old software does not age. It waits.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 85,
+    "quote": "Abandonware is not abandoned if someone remembers it.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 86,
+    "quote": "Compatibility is a love letter to the past.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 87,
+    "quote": "Emulation is memory wearing a new body.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 88,
+    "quote": "Preservation starts when the last official update ends.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 89,
+    "quote": "The archive is the afterlife of technology.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 90,
+    "quote": "To restore a machine is to negotiate with time.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 91,
+    "quote": "Every screw removed is a promise to put it back.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 92,
+    "quote": "The smell of warm plastic is a login screen for memory.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 93,
+    "quote": "Retro tech is not about speed. It is about character.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 94,
+    "quote": "A museum computer should not be silent; it should hum.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 95,
+    "quote": "When a CRT turns on, the past takes a breath.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 96,
+    "quote": "Dead media are only dead until someone finds the right cable.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 97,
+    "quote": "A null modem cable is a handshake between ghosts.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 98,
+    "quote": "Inventory is memory with columns.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 99,
+    "quote": "A museum database is a map of lost futures.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "id": 100,
+    "quote": "Catalog the machine, but also catalog the feeling.",
+    "author": "MuseumOS Original",
+    "category": "retro technology / museum",
+    "source_status": "original",
+    "source_note": "Created for MuseumOS"
+  },
+  {
+    "quote": "Technology alone is not enough.",
+    "author": "Steve Jobs",
+    "category": "Apple",
+    "source_status": "verified",
+    "source_note": "Commonly attributed Steve Jobs quote"
+  },
+  {
+    "quote": "Innovation distinguishes between a leader and a follower.",
+    "author": "Steve Jobs",
+    "category": "Apple",
+    "source_status": "verified",
+    "source_note": "Commonly attributed Steve Jobs quote"
+  },
+  {
+    "quote": "The computer is the most remarkable tool we’ve ever come up with.",
+    "author": "Steve Jobs",
+    "category": "Apple",
+    "source_status": "verified",
+    "source_note": "Commonly attributed Steve Jobs quote"
+  },
+  {
+    "quote": "Software is a great combination between artistry and engineering.",
+    "author": "Bill Gates",
+    "category": "Microsoft",
+    "source_status": "verified",
+    "source_note": "Commonly attributed Bill Gates quote"
+  },
+  {
+    "quote": "The computer was born to solve problems that did not exist before.",
+    "author": "Bill Gates",
+    "category": "Microsoft",
+    "source_status": "verified",
+    "source_note": "Commonly attributed Bill Gates quote"
+  },
+  {
+    "quote": "640K ought to be enough for anybody.",
+    "author": "Bill Gates",
+    "category": "Microsoft",
+    "source_status": "apocryphal",
+    "source_note": "Widely attributed but likely never actually said"
+  },
+  {
+    "quote": "Are you keeping up with the Commodore? Cause the Commodore is keeping up with you.",
+    "author": "Commodore",
+    "category": "Commodore",
+    "source_status": "verified",
+    "source_note": "Official Commodore slogan"
+  },
+  {
+    "quote": "READY.",
+    "author": "Commodore 64",
+    "category": "Commodore",
+    "source_status": "verified",
+    "source_note": "Classic Commodore BASIC prompt"
+  },
+  {
+    "quote": "Only Amiga makes it possible.",
+    "author": "Amiga",
+    "category": "Amiga",
+    "source_status": "verified",
+    "source_note": "Official Amiga slogan"
+  },
+  {
+    "quote": "Guru Meditation.",
+    "author": "Amiga",
+    "category": "Amiga",
+    "source_status": "verified",
+    "source_note": "Classic Amiga system error message"
+  },
+  {
+    "quote": "UNIX is simple. It just takes a genius to understand its simplicity.",
+    "author": "Dennis Ritchie",
+    "category": "UNIX",
+    "source_status": "verified",
+    "source_note": "Common UNIX quote"
+  },
+  {
+    "quote": "Everything is a file.",
+    "author": "UNIX Philosophy",
+    "category": "UNIX",
+    "source_status": "verified",
+    "source_note": "Core UNIX philosophy"
+  },
+  {
+    "quote": "Write programs that do one thing and do it well.",
+    "author": "UNIX Philosophy",
+    "category": "UNIX",
+    "source_status": "verified",
+    "source_note": "Core UNIX philosophy"
+  },
+  {
+    "quote": "Fun is the easiest thing to sell.",
+    "author": "Nolan Bushnell",
+    "category": "Atari",
+    "source_status": "verified",
+    "source_note": "Atari founder quote"
+  },
+  {
+    "quote": "The future used to beep.",
+    "author": "Unknown",
+    "category": "Retro Computing",
+    "source_status": "original",
+    "source_note": "Original retro-style quote"
+  }
+]

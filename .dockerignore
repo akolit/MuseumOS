@@ -1,0 +1,44 @@
+# Heavy / never-belongs-in-image
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+**/.cache
+
+# Local data / bind-mounted at runtime
+images
+img
+legacy_images
+
+# Local tooling / IDE
+.claude
+.vscode
+.idea
+.DS_Store
+
+# Env + secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+cookies.txt
+
+# Git
+.git
+.gitignore
+
+# Docs
+README.md
+SESSION_NOTES.md
+**/*.md
+!scripts/IMPORT.md
+# CHANGELOG.md is bundled into both apps' /changelog pages via a Vite raw
+# import — must NOT be excluded from the build context.
+!CHANGELOG.md
+
+# Test / coverage
+coverage
+**/*.test.ts
+**/*.spec.ts
+
+# Lockfile is needed (pnpm install --frozen-lockfile) — do NOT ignore it

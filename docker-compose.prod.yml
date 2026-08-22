@@ -1,0 +1,166 @@
+# MuseumOS — production compose.
+#
+# Runs anywhere Docker does (tested on arm64 and amd64, including under
+# Coolify). Hostnames and the Traefik network come from env vars, so nothing
+# here is tied to one deployment — see .env.production.example.
+#
+# Expects a Traefik instance in front to terminate TLS. If your platform
+# already provides a proxy (Coolify, Dokploy, CapRover…), drop the `labels:`
+# and `networks:` blocks on `web`/`pwa` and bind hostnames in its UI instead.
+#
+# What this file declares:
+#   - postgres: in-compose, data on /srv/museumos/postgres-data (NVMe)
+#   - backup:   nightly pg_dump → /srv/museumos/backups (gzip, retained)
+#   - api:      NestJS, /app/img bind-mount points at /srv/museumos/images
+#   - web:      nginx serving the admin SPA + proxying /api and /img to api
+#   - pwa:      nginx serving the capture PWA + same proxying
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-museumos}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-museumos}
+    volumes:
+      # Pre-create this directory on the host before first deploy (see runbook).
+      - /srv/museumos/postgres-data:/var/lib/postgresql/data
+      # NOTE: the three required extensions (uuid-ossp, unaccent, pg_trgm) are
+      # NOT bootstrapped via a bind-mounted init script here — Coolify rewrites
+      # single-file bind mounts into directories, which breaks initdb. They are
+      # created by the pg_dump restore (the dump carries CREATE EXTENSION), or
+      # manually via scripts/init-db.sql once the DB is up (see runbook).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-museumos} -d ${DB_NAME:-museumos}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      # First boot runs initdb before accepting connections; don't fail the
+      # deploy while that's happening.
+      start_period: 60s
+
+  # Nightly pg_dump → /srv/museumos/backups on the NVMe. Uses the well-trodden
+  # prodrigestivill image: cron-driven, gzipped, with daily/weekly/monthly
+  # retention. arm64 multi-arch image is published.
+  #
+  # Restore (one-shot, from inside the postgres container):
+  #   gunzip -c /backups/daily/museumos-YYYY-MM-DD.sql.gz \
+  #     | psql -U museumos -d museumos
+  #
+  # The DB dump is small (~12 MB at the current scale), so the on-disk
+  # footprint with the retention below is < 250 MB.
+  backup:
+    image: prodrigestivill/postgres-backup-local:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${DB_NAME:-museumos}
+      POSTGRES_USER: ${DB_USER:-museumos}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # --clean --if-exists lets the dump restore cleanly over an existing DB.
+      # --no-owner / --no-acl keeps it portable between environments.
+      POSTGRES_EXTRA_OPTS: "--no-owner --no-acl --clean --if-exists"
+      SCHEDULE: "0 3 * * *"     # 03:00 every night (container TZ = UTC)
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+    volumes:
+      - /srv/museumos/backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-museumos}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-museumos}
+      SESSION_SECRET: ${SESSION_SECRET}
+      # Comma-separated; should include the public origin you'll be hitting.
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://${WEB_HOST},https://${PWA_HOST}}
+      NODE_ENV: production
+      API_PORT: "3000"
+      # Optional eBay integration (leave blank to disable the button)
+      EBAY_CLIENT_ID: ${EBAY_CLIENT_ID:-}
+      EBAY_CLIENT_SECRET: ${EBAY_CLIENT_SECRET:-}
+      EBAY_MARKETPLACE: ${EBAY_MARKETPLACE:-EBAY_GB}
+      EBAY_ENV: ${EBAY_ENV:-production}
+    volumes:
+      # 82 GB of originals + thumbs live here on the NVMe — never in the image.
+      - /srv/museumos/images:/app/img
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    # Routed by an external Traefik. We opt in via its constraint label and
+    # share its network; TLS is issued by its `letsencrypt` resolver.
+    #   default network  → reach the `api` service by name
+    #   ${PROXY_NETWORK} → reachable by that Traefik
+    expose:
+      - "80"
+    networks:
+      - default
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.constraint-label=${PROXY_CONSTRAINT_LABEL:-proxy}"
+      - "traefik.docker.network=${PROXY_NETWORK:-proxy-net}"
+      - "traefik.http.services.museumos-web.loadbalancer.server.port=80"
+      # http → https redirect
+      - "traefik.http.routers.museumos-web.entrypoints=http"
+      - "traefik.http.routers.museumos-web.rule=Host(`${WEB_HOST}`)"
+      - "traefik.http.routers.museumos-web.middlewares=museumos-web-redirect"
+      - "traefik.http.middlewares.museumos-web-redirect.redirectscheme.scheme=https"
+      # https (terminated here, cert via the shared letsencrypt resolver)
+      - "traefik.http.routers.museumos-webs.entrypoints=https"
+      - "traefik.http.routers.museumos-webs.rule=Host(`${WEB_HOST}`)"
+      - "traefik.http.routers.museumos-webs.tls=true"
+      - "traefik.http.routers.museumos-webs.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.museumos-webs.service=museumos-web"
+
+  pwa:
+    build:
+      context: .
+      dockerfile: apps/pwa/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    # Same Traefik integration as `web`, on the mobile-capture hostname.
+    expose:
+      - "80"
+    networks:
+      - default
+      - proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.constraint-label=${PROXY_CONSTRAINT_LABEL:-proxy}"
+      - "traefik.docker.network=${PROXY_NETWORK:-proxy-net}"
+      - "traefik.http.services.museumos-pwa.loadbalancer.server.port=80"
+      - "traefik.http.routers.museumos-pwa.entrypoints=http"
+      - "traefik.http.routers.museumos-pwa.rule=Host(`${PWA_HOST}`)"
+      - "traefik.http.routers.museumos-pwa.middlewares=museumos-pwa-redirect"
+      - "traefik.http.middlewares.museumos-pwa-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.museumos-pwas.entrypoints=https"
+      - "traefik.http.routers.museumos-pwas.rule=Host(`${PWA_HOST}`)"
+      - "traefik.http.routers.museumos-pwas.tls=true"
+      - "traefik.http.routers.museumos-pwas.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.museumos-pwas.service=museumos-pwa"
+
+# The proxy's own Docker network, created and owned by that proxy — joined
+# here as `external` so this stack never manages its lifecycle.
+networks:
+  default:
+  proxy-net:
+    external: true
+    name: ${PROXY_NETWORK:-proxy-net}

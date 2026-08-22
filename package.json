@@ -1,0 +1,42 @@
+{
+  "name": "museumos",
+  "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @museumos/api dev & pnpm --filter @museumos/web dev",
+    "dev:api": "pnpm --filter @museumos/api dev",
+    "dev:web": "pnpm --filter @museumos/web dev",
+    "dev:pwa": "pnpm --filter @museumos/pwa dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:generate": "pnpm --filter @museumos/db generate",
+    "db:migrate": "pnpm --filter @museumos/db migrate",
+    "db:seed": "pnpm --filter @museumos/db seed",
+    "db:studio": "pnpm --filter @museumos/db studio",
+    "docker:dev": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "clean": "pnpm -r exec rm -rf node_modules dist .turbo && rm -rf node_modules"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "argon2",
+      "esbuild",
+      "prisma"
+    ]
+  },
+  "devDependencies": {
+    "xlsx": "^0.18.5"
+  },
+  "dependencies": {
+    "pg": "^8.20.0",
+    "sharp": "^0.34.5"
+  }
+}
