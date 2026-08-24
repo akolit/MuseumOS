@@ -72,6 +72,18 @@ Then create the host directories the stack bind-mounts:
 sudo mkdir -p /srv/museumos/{postgres-data,images,backups}
 ```
 
+Running a second instance on the same host — a demo, or a staging copy next to
+production — set `DATA_DIR` to a different directory in each `.env` and create
+that one instead:
+
+```bash
+sudo mkdir -p /srv/museumos-demo/{postgres-data,images,backups}
+```
+
+> Two instances must never share a `DATA_DIR`. Both would start a PostgreSQL
+> server against the same data directory, which corrupts it, and the second
+> instance would serve the first one's collection.
+
 ## 2. Reverse proxy
 
 **If your platform already provides one** — [Coolify](https://coolify.io/),
@@ -165,9 +177,9 @@ curl -s https://museumos.example.org/api/health
 
 ## Backups
 
-The `backup` service dumps PostgreSQL nightly to `/srv/museumos/backups`. That
+The `backup` service dumps PostgreSQL nightly to `$DATA_DIR/backups`. That
 covers the catalogue but **not the images** — those are files on disk. Back up
-`/srv/museumos/images` with whatever you already use (restic, borg, rsync to a
+`$DATA_DIR/images` with whatever you already use (restic, borg, rsync to a
 second machine).
 
 Restore a dump with:

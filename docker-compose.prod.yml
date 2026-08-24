@@ -2,16 +2,17 @@
 #
 # Runs anywhere Docker does (tested on arm64 and amd64, including under
 # Coolify). Hostnames and the Traefik network come from env vars, so nothing
-# here is tied to one deployment — see .env.production.example.
+# here is tied to one deployment — see .env.production.example. Host paths
+# hang off $DATA_DIR, so two instances can share a host without colliding.
 #
 # Expects a Traefik instance in front to terminate TLS. If your platform
 # already provides a proxy (Coolify, Dokploy, CapRover…), drop the `labels:`
 # and `networks:` blocks on `web`/`pwa` and bind hostnames in its UI instead.
 #
 # What this file declares:
-#   - postgres: in-compose, data on /srv/museumos/postgres-data (NVMe)
-#   - backup:   nightly pg_dump → /srv/museumos/backups (gzip, retained)
-#   - api:      NestJS, /app/img bind-mount points at /srv/museumos/images
+#   - postgres: in-compose, data on $DATA_DIR/postgres-data
+#   - backup:   nightly pg_dump → $DATA_DIR/backups (gzip, retained)
+#   - api:      NestJS, /app/img bind-mount points at $DATA_DIR/images
 #   - web:      nginx serving the admin SPA + proxying /api and /img to api
 #   - pwa:      nginx serving the capture PWA + same proxying
 
@@ -25,7 +26,7 @@ services:
       POSTGRES_DB: ${DB_NAME:-museumos}
     volumes:
       # Pre-create this directory on the host before first deploy (see runbook).
-      - /srv/museumos/postgres-data:/var/lib/postgresql/data
+      - ${DATA_DIR:-/srv/museumos}/postgres-data:/var/lib/postgresql/data
       # NOTE: the three required extensions (uuid-ossp, unaccent, pg_trgm) are
       # NOT bootstrapped via a bind-mounted init script here — Coolify rewrites
       # single-file bind mounts into directories, which breaks initdb. They are
@@ -40,9 +41,9 @@ services:
       # deploy while that's happening.
       start_period: 60s
 
-  # Nightly pg_dump → /srv/museumos/backups on the NVMe. Uses the well-trodden
-  # prodrigestivill image: cron-driven, gzipped, with daily/weekly/monthly
-  # retention. arm64 multi-arch image is published.
+  # Nightly pg_dump → $DATA_DIR/backups. Uses the well-trodden prodrigestivill
+  # image: cron-driven, gzipped, with daily/weekly/monthly retention. arm64
+  # multi-arch image is published.
   #
   # Restore (one-shot, from inside the postgres container):
   #   gunzip -c /backups/daily/museumos-YYYY-MM-DD.sql.gz \
@@ -67,7 +68,7 @@ services:
       BACKUP_KEEP_MONTHS: 6
       HEALTHCHECK_PORT: 8080
     volumes:
-      - /srv/museumos/backups:/backups
+      - ${DATA_DIR:-/srv/museumos}/backups:/backups
     depends_on:
       postgres:
         condition: service_healthy
@@ -91,7 +92,7 @@ services:
       EBAY_ENV: ${EBAY_ENV:-production}
     volumes:
       # 82 GB of originals + thumbs live here on the NVMe — never in the image.
-      - /srv/museumos/images:/app/img
+      - ${DATA_DIR:-/srv/museumos}/images:/app/img
     depends_on:
       postgres:
         condition: service_healthy
